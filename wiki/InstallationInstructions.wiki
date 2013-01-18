@@ -1,0 +1,23 @@
+#labels Featured,Phase-Deploy
+=Using right away=
+The project now has an Ubuntu repository at https://launchpad.net/~pidgin-gnome-keyring/+archive/ppa. To install from the repository, type the following into a command prompt
+{{{
+sudo add-apt-repository ppa:pidgin-gnome-keyring/ppa
+sudo apt-get update
+sudo apt-get install pidgin-gnome-keyring
+}}}
+
+For other systems, download the appropriate installer and install it with the appropriate package manager. Alternately, extract gnome-keyring.so from the appropriate archive, and copy it to your plugin directory (usually ~/.purple/plugins).
+
+Now when you go to the plugins page, you should see the plugin listed as "Gnome Keyring." After the plugin is enabled, whenever an account with a pidgin-stored password signs on, its password will automatically be saved to the keyring and removed from pidgin.
+
+=Building from source=
+Obtain the source code. You can either
+  * checkout the svn code from the repository (Google code [http://code.google.com/p/pidgin-gnome-keyring/source/checkout should tell you how to do this]).
+  * download the source code from the downloads section
+
+You will need the development libraries for libpurple and gnome keyring and pkg-config. If you use ubuntu and don't have these already installed, type
+{{{sudo apt-get install libgnome-keyring-dev libpurple-dev pkg-config}}}
+into the command line.
+
+To build the plugin, `cd` into the code repository and type `make`. Typing `make install` will copy the compiled plugin to ~/.purple/plugins/.
