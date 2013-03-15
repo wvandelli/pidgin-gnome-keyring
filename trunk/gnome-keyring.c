@@ -17,7 +17,7 @@ static void sign_in_cb(PurpleAccount *account, gpointer data);
 static void keyring_password_find_cb(GnomeKeyringResult res,
         const gchar *password, gpointer user_data);
 static void keyring_password_store_cb(GnomeKeyringResult res, gpointer data);
-static void connecting_cb(PurpleAccount *account, gpointer data);
+static void status_changed_cb(PurpleAccount *account, PurpleStatus *old, PurpleStatus *new, gpointer data);
 static void memory_clearing_function(PurpleAccount *account);
 static PurplePluginPrefFrame * get_pref_frame(PurplePlugin *plugin);
 
@@ -81,11 +81,13 @@ static gboolean plugin_load(PurplePlugin *plugin) {
      * so that the callback function can store/update the password */
     purple_signal_connect(accountshandle, "account-signed-on", plugin,
             PURPLE_CALLBACK(sign_in_cb), NULL); 
-    /* create a signal which monitors whenever an account tries to connect
+    /* create a signal which monitors whenever an account status changes
      * so that the callback can make sure the password is set in pidgin */
-    purple_signal_connect(accountshandle, "account-connecting", plugin,
-            PURPLE_CALLBACK(connecting_cb), NULL);
+    purple_signal_connect(accountshandle, "account-status-changed", plugin,
+	    PURPLE_CALLBACK(status_changed_cb), NULL);
+
     /* at this point, the plugin is set up */
+
     return TRUE;
 }
 
@@ -173,11 +175,17 @@ static void memory_clearing_function(PurpleAccount *account) {
     }
 }
 
-/* callback to whenever a function tries to connect
+/* callback to whenever the status of an account changes
  * this needs to ensure that there is a password
  * this may happen if the password was disabled, then later re-enabled */
-static void connecting_cb(PurpleAccount *account, gpointer data) {
-    if (account->password == NULL) {
+static void status_changed_cb(PurpleAccount *account, PurpleStatus *old, PurpleStatus *new, gpointer data){
+  
+  /* Ideally we should renew the password only when the account is
+   * enabled ... It does not seem to work though. To be understood. */
+  PurpleStatusPrimitive oldstatus = purple_status_type_get_primitive(purple_status_get_type(old));
+  PurpleStatusPrimitive newstatus = purple_status_type_get_primitive(purple_status_get_type(new));
+
+  if (account->password == NULL) {
         gchar *password;
         GnomeKeyringResult res = gnome_keyring_find_password_sync(
             GNOME_KEYRING_NETWORK_PASSWORD, &password,
@@ -188,7 +196,6 @@ static void connecting_cb(PurpleAccount *account, gpointer data) {
         }
     }
 }
-
 
 static gboolean plugin_unload(PurplePlugin *plugin) {
     /* disconnect from signals */
