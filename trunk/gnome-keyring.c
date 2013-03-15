@@ -202,7 +202,7 @@ static gboolean plugin_unload(PurplePlugin *plugin) {
     void *accounts_handle = purple_accounts_get_handle();
     purple_signal_disconnect(accounts_handle, "account-signed-on",
                              plugin, NULL);
-    purple_signal_disconnect(accounts_handle, "account-connecting",
+    purple_signal_disconnect(accounts_handle, "account-status-changed",
                              plugin, NULL);
     return TRUE;
 }
